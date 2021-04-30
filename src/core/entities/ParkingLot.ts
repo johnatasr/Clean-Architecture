@@ -7,10 +7,16 @@ export default class ParkingLot {
     closeHour: number
 
 
-    constructor(code, capacity, openHour, closeHour) {
+    constructor(code: string, capacity: number, openHour: number, closeHour: number) {
         this.code = code,
         this. capacity = capacity,
         this.openHour = openHour,
         this.closeHour = closeHour
+    }
+
+    
+    idOpen(date: Date){
+        const hour = date.getHours();
+        return (hour >= this.openHour && hour <= this.closeHour);
     }
 }
