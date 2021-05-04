@@ -1,26 +1,48 @@
-import EnterParkingLot from "../src/core/useCases/EnterParkingLot";
-import GetParkingLot from "../src/core/useCases/GetParkingLot";
-import ParkingLotRepoMemory from "../src/infra/ParkingLotRepoMemory"
+import EnterParkingLot from "../src/domain/useCases/EnterParkingLot";
+import GetParkingLot from "../src/domain/useCases/GetParkingLot";
+import ParkingLotRepositoryMemory from "../src/infra/repository/ParkingLotRepoMemory";
+import ParkingLotRepositorySQL from "../src/infra/repository/ParkingLotRepoSQL";
 
-test("Shoud enter parking lot", async function() {
-    const parkingLotRepoMemory = new ParkingLotRepoMemory();
-    const enterParkingLotUseCase = new EnterParkingLot(parkingLotRepoMemory);
-    const parkingLot = await enterParkingLotUseCase.execute(
-        "shopping",
-        "PPP-4578",
-        new Date("2021-04-30T12:21:50")
-        );
-    const getParkingLotUseCase = new GetParkingLot(parkingLotRepoMemory);
-    const parkingLotBeforEnter = getParkingLotUseCase.execute("shopping");
-    
-    expect(parkingLotBeforEnter.occSpaces).toBe(0)
-    
-    await enterParkingLotUseCase.execute(
-        "supermarket",
-        "MHH-1313",
-        new Date("2021-04-30T15:54:20")
-    )
-    
-    expect(parkingLot.code).toBe("shopping")
+test.skip("Should get parking lot", async function () {
+	const parkingLotRepositoryMemory = new ParkingLotRepositoryMemory();
+	const parkingLotRepositorySQL = new ParkingLotRepositorySQL();
+	const getParkingLot = new GetParkingLot(parkingLotRepositorySQL);
+	const parkingLot = await getParkingLot.execute("shopping");
+	expect(parkingLot.code).toBe("shopping");
+});
 
-})
+test("Should enter parking lot", async function () {
+	const parkingLotRepositoryMemory = new ParkingLotRepositoryMemory();
+	const parkingLotRepositorySQL = new ParkingLotRepositorySQL();
+	const enterParkingLot = new EnterParkingLot(parkingLotRepositorySQL);
+	const getParkingLot = new GetParkingLot(parkingLotRepositorySQL);
+	const parkingLotBeforeEnter = await getParkingLot.execute("shopping");
+	expect(parkingLotBeforeEnter.occSpaces).toBe(0);
+	await enterParkingLot.execute("shopping", "MMM-0001", new Date("2021-03-01T10:00:00"));
+	const parkingLotAfterEnter = await getParkingLot.execute("shopping");
+	expect(parkingLotAfterEnter.occSpaces).toBe(1);
+});
+
+test.skip("Should be closed", async function () {
+	const parkingLotRepositoryMemory = new ParkingLotRepositoryMemory();
+	const parkingLotRepositorySQL = new ParkingLotRepositorySQL();
+	const enterParkingLot = new EnterParkingLot(parkingLotRepositoryMemory);
+	const getParkingLot = new GetParkingLot(parkingLotRepositoryMemory);
+	const parkingLotBeforeEnter = await getParkingLot.execute("shopping");
+	expect(parkingLotBeforeEnter.occSpaces).toBe(0);
+	await enterParkingLot.execute("shopping", "MMM-0001", new Date("2021-03-01T23:00:00"));
+});
+
+test.skip("Should be full", async function () {
+	const parkingLotRepositoryMemory = new ParkingLotRepositoryMemory();
+	const enterParkingLot = new EnterParkingLot(parkingLotRepositoryMemory);
+	const getParkingLot = new GetParkingLot(parkingLotRepositoryMemory);
+	const parkingLotBeforeEnter = await getParkingLot.execute("shopping");
+	expect(parkingLotBeforeEnter.occSpaces).toBe(0);
+	await enterParkingLot.execute("shopping", "MMM-0001", new Date("2021-03-01T10:00:00"));
+	await enterParkingLot.execute("shopping", "MMM-0002", new Date("2021-03-01T10:00:00"));
+	await enterParkingLot.execute("shopping", "MMM-0003", new Date("2021-03-01T10:00:00"));
+	await enterParkingLot.execute("shopping", "MMM-0004", new Date("2021-03-01T10:00:00"));
+	await enterParkingLot.execute("shopping", "MMM-0005", new Date("2021-03-01T10:00:00"));
+	await enterParkingLot.execute("shopping", "MMM-0006", new Date("2021-03-01T10:00:00"));
+});

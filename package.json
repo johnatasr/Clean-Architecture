@@ -11,7 +11,10 @@
   "license": "ISC",
   "dependencies": {
     "@types/jest": "^26.0.23",
+    "express": "^4.17.1",
+    "hapi": "^18.1.0",
     "jest": "^26.6.3",
+    "pg-promise": "^10.10.2",
     "typescript": "^4.2.4"
   }
 }
